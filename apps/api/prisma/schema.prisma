@@ -23,6 +23,7 @@ model Vehicle {
   plateNumber String    @unique
   dailyRate   Float
   bookings    Booking[]
+  year         Int
 }
 
 model Booking {
