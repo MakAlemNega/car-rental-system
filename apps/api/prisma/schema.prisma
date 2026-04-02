@@ -10,10 +10,18 @@ datasource db {
 model User {
   id        String    @id @default(uuid())
   phone     String    @unique
-  name      String
+  name      String?
+  otp           String?   // Store the hashed/plain OTP code
+  otpExpires    DateTime? // Safety: OTP should only last ~5 mins
   role      String    @default("CUSTOMER") // CUSTOMER or ADMIN
   bookings  Booking[]
   createdAt DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
 }
 
 model Vehicle {
