@@ -1,0 +1,12 @@
+$kind: http-request
+name: http://localhost:3001/auth/request-otp
+url: http://localhost:3001/auth/request-otp
+method: POST
+body:
+  type: json
+  content: "{\r
+
+    \  \"phoneNumber\": \"+251911223344\"\r
+
+    }"
+order: 1775998354817
