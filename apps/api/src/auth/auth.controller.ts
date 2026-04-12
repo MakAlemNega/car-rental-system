@@ -9,4 +9,11 @@ export class AuthController {
   async requestOtp(@Body('phoneNumber') phoneNumber: string) {
     return this.authService.generateOtp(phoneNumber);
   }
+  @Post('verify-otp')
+  async verifyOtp(
+    @Body('phoneNumber') phoneNumber: string,
+    @Body('otp') otp: string,
+  ) {
+    return this.authService.verifyOtp(phoneNumber, otp);
+  }
 }

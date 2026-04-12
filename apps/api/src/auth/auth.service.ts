@@ -1,4 +1,8 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
 
 @Injectable()
@@ -35,5 +39,34 @@ export class AuthService {
       console.error('OTP Generation Error:', error);
       throw new InternalServerErrorException('Could not generate OTP');
     }
+  }
+  async verifyOtp(phoneNumber: string, submittedOtp: string) {
+    // 1. Find the user by phone number
+    const user = await this.prisma.user.findUnique({
+      where: { phone: phoneNumber },
+    });
+
+    // 2. Security Check: Does user exist? Does the OTP match?
+    if (!user || user.otp !== submittedOtp) {
+      throw new UnauthorizedException('Invalid OTP');
+    }
+
+    // 3. Expiry Check: Is the OTP still valid?
+    if (user.otpExpires && new Date() > user.otpExpires) {
+      throw new UnauthorizedException('OTP has expired');
+    }
+
+    // 4. Cleanup: Clear the OTP so it can't be used twice
+    await this.prisma.user.update({
+      where: { phone: phoneNumber },
+      data: { otp: null, otpExpires: null },
+    });
+
+    // 5. Success: For now, return a message (Next, we'll generate a JWT token)
+    return {
+      message: 'Authentication successful',
+      userId: user.id,
+      role: user.role,
+    };
   }
 }
