@@ -4,10 +4,13 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PrismaService } from '../prisma/prisma.service';
-
+import { JwtService } from '@nestjs/jwt';
 @Injectable()
 export class AuthService {
-  constructor(private prisma: PrismaService) {}
+  constructor(
+    private prisma: PrismaService,
+    private jwtService: JwtService,
+  ) {}
 
   async generateOtp(phoneNumber: string) {
     // 1. Generate a random 6-digit string
@@ -63,10 +66,14 @@ export class AuthService {
     });
 
     // 5. Success: For now, return a message (Next, we'll generate a JWT token)
+    const payload = { sub: user.id, phone: user.phone, role: user.role };
     return {
       message: 'Authentication successful',
-      userId: user.id,
-      role: user.role,
+      access_token: await this.jwtService.signAsync(payload),
+      user: {
+        id: user.id,
+        role: user.role,
+      },
     };
   }
 }
